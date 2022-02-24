@@ -1,0 +1,5 @@
+wbtools==1.2.14
+jupyter
+sentence_transformers
+sklearn
+matplotlib
