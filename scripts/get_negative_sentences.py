@@ -1,8 +1,10 @@
 import argparse
 import logging
 
-from wbtools.db.dbmanager import WBDBManager
+import numpy as np
+from wbtools.lib.nlp.common import PaperSections
 from wbtools.literature.corpus import CorpusManager
+from nltk import sent_tokenize
 
 from common import get_negative_paper_ids
 
@@ -42,7 +44,23 @@ def main():
     cm = CorpusManager()
     cm.load_from_wb_database(args.db_name, args.db_user, args.db_password, args.db_host, ssh_user=args.ssh_user,
                              ssh_passwd=args.ssh_password, ssh_host=args.ssh_host, paper_ids=papers_to_extract)
-    pass
+
+    with open("../extracted_sentences/neg_sentences_otherexpr.txt", 'w') as out_file:
+        for paper in cm.get_all_papers():
+            fulltext = paper.get_text_docs(include_supplemental=False, remove_sections=[
+                PaperSections.INTRODUCTION, PaperSections.RELATED_WORK, PaperSections.ACKNOWLEDGEMENTS,
+                PaperSections.REFERENCES], must_be_present=[PaperSections.RESULTS], split_sentences=False,
+                                           return_concatenated=True)
+            fulltext = fulltext.replace("Fig.", "Fig")
+            fulltext = fulltext.replace("et al.", "et al")
+            fulltext = fulltext.replace('.\n\n', '. ')
+            fulltext = fulltext.replace('\n\n', '. ')
+            fulltext = fulltext.replace('-\n', '')
+            fulltext = fulltext.replace('.\n', '. ')
+            fulltext = fulltext.replace('\n', ' ')
+            pap_sentences = sent_tokenize(fulltext)
+            pap_sentences = [sent + '\n' for sent in pap_sentences if np.average([len(w) for w in sent.split(' ')]) > 2]
+            out_file.writelines(pap_sentences)
 
 
 if __name__ == '__main__':
