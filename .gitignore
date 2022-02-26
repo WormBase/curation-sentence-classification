@@ -1,2 +1,4 @@
 extracted_sentences/*
+sentence_embeddings/*
+biosentvec/*
 .idea
