@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 
 import numpy as np
 from wbtools.lib.nlp.common import PaperSections
@@ -29,12 +30,17 @@ def main():
     parser.add_argument("-n", "--num-papers", metavar="num_papers", dest="num_papers", type=int, default=None,
                         help="number of papers to process, from the most recent")
     parser.add_argument("-i", "--paper-ids", metavar="paper_ids", dest="paper_ids", type=str, nargs="+", default=None,
-                        help="process the provided list of papers instead of automatically obtaining them")
+                        help="process the provided list of papers instead of automatically obtaining them. Accepted "
+                             "values are list of string IDs or file path where to read them")
     args = parser.parse_args()
     logging.basicConfig(filename=args.log_file, level=args.log_level,
                         format='%(asctime)s - %(name)s - %(levelname)s:%(message)s')
     if args.paper_ids:
-        papers_to_extract = args.paper_ids
+        if os.path.exists(args.paper_ids[0]):
+            papers_to_extract = ["000" + line.strip() for line in
+                                 open("../optional_input_files/negative_papers_overexpr.txt")]
+        else:
+            papers_to_extract = args.paper_ids
     else:
         logging.info("reading list of validated negative paper ids from curation status form")
         papers_to_extract = get_negative_paper_ids(datatype="otherexpr", user=args.http_user,
