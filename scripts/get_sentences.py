@@ -7,7 +7,7 @@ from wbtools.lib.nlp.common import PaperSections
 from wbtools.literature.corpus import CorpusManager
 from nltk import sent_tokenize
 
-from common import get_negative_paper_ids
+from common import get_papers_from_cs_form
 
 
 def main():
@@ -32,26 +32,33 @@ def main():
     parser.add_argument("-i", "--paper-ids", metavar="paper_ids", dest="paper_ids", type=str, nargs="+", default=None,
                         help="process the provided list of papers instead of automatically obtaining them. Accepted "
                              "values are list of string IDs or file path where to read them")
+    parser.add_argument("-m" "--method", metavar="method", dest="method", type=str, default="allval%20neg",
+                        help="curation status form method")
+    parser.add_argument("-o" "--output-file", metavar="out_file", dest="out_file", type=str,
+                        help="file where to write sentences")
+    parser.add_argument("-d" "--datatype", metavar="datatype", dest="datatype", type=str, default="otherexpr",
+                        help="cs datatype")
     args = parser.parse_args()
     logging.basicConfig(filename=args.log_file, level=args.log_level,
                         format='%(asctime)s - %(name)s - %(levelname)s:%(message)s')
     if args.paper_ids:
         if os.path.exists(args.paper_ids[0]):
-            papers_to_extract = ["000" + line.strip() for line in
-                                 open("../optional_input_files/negative_papers_overexpr.txt")]
+            papers_to_extract = ["000" + line.strip() for line in open(args.paper_ids[0])]
         else:
             papers_to_extract = args.paper_ids
     else:
-        logging.info("reading list of validated negative paper ids from curation status form")
-        papers_to_extract = get_negative_paper_ids(datatype="otherexpr", user=args.http_user,
-                                                   password=args.http_password, host=args.http_host)
+        logging.info("reading list of paper ids from curation status form")
+        papers_to_extract = get_papers_from_cs_form(datatype=args.datatype, user=args.http_user,
+                                                    password=args.http_password, host=args.http_host,
+                                                    method=args.method)
     if args.num_papers:
         papers_to_extract = sorted(papers_to_extract, reverse=True)[0:args.num_papers]
     cm = CorpusManager()
     cm.load_from_wb_database(args.db_name, args.db_user, args.db_password, args.db_host, ssh_user=args.ssh_user,
-                             ssh_passwd=args.ssh_password, ssh_host=args.ssh_host, paper_ids=papers_to_extract)
+                             ssh_passwd=args.ssh_password, ssh_host=args.ssh_host, paper_ids=papers_to_extract,
+                             exclude_temp_pdf=True, exclude_no_main_text=True)
 
-    with open("../extracted_sentences/neg_sentences_otherexpr.txt", 'w') as out_file:
+    with open(args.out_file, 'w') as out_file:
         for paper in cm.get_all_papers():
             fulltext = paper.get_text_docs(include_supplemental=False, remove_sections=[
                 PaperSections.INTRODUCTION, PaperSections.RELATED_WORK, PaperSections.ACKNOWLEDGEMENTS,

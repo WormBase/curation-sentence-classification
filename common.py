@@ -3,14 +3,13 @@ import re
 import urllib.request
 
 
-def get_negative_paper_ids(datatype, user, password,
-                           host="http://tazendra.textpressolab.com/~postgres/cgi-bin/curation_status.cgi"):
+def get_papers_from_cs_form(datatype, user, password, method,
+                            host="http://tazendra.textpressolab.com/~postgres/cgi-bin/curation_status.cgi"):
     if datatype == "humdis":
         datatype = "humandisease"
     request = urllib.request.Request(host + "?action=listCurationStatisticsPapersPage&select_datatypesource=caltech&"
-                                            "select_curator=two1823&listDatatype=" + datatype + "&method=allval%20neg&"
-                                            "checkbox_cfp=on&checkbox_afp=on&checkbox_str=on&checkbox_nnc=on&"
-                                            "checkbox_svm=on" + datatype)
+                                            "select_curator=two1823&listDatatype=" + datatype + "&method=" + method +
+                                     "&checkbox_nnc=on")
     base64string = base64.b64encode(bytes('%s:%s' % (user, password), 'ascii'))
     request.add_header("Authorization", "Basic %s" % base64string.decode('utf-8'))
     with urllib.request.urlopen(request) as response:
