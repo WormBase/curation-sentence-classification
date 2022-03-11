@@ -72,7 +72,7 @@ def main():
             fulltext = fulltext.replace('.\n', '. ')
             fulltext = fulltext.replace('\n', ' ')
             pap_sentences = sent_tokenize(fulltext)
-            pap_sentences = [sent + '\n' for sent in pap_sentences if np.average([len(w) for w in sent.split(' ')]) > 2]
+            pap_sentences = [paper.paper_id + "\t" + sent + '\n' for sent in pap_sentences if np.average([len(w) for w in sent.split(' ')]) > 2]
             out_file.writelines(pap_sentences)
 
 
