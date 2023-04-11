@@ -1,8 +1,8 @@
 wbtools==1.2.14
 jupyter
 sentence_transformers
-sklearn
-matplotlib
+scikit-learn
+matplotlib==3.5
 nltk~=3.7
 numpy~=1.19.5
 umap-learn
