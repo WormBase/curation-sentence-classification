@@ -1,5 +1,6 @@
 extracted_sentences/*
 sentence_embeddings/*
 gold_standard_sentences/*
+classifiers/*
 biosentvec/*
 .idea
