@@ -18,9 +18,6 @@ def main():
     parser.add_argument("-H", "--db-host", metavar="db_host", dest="db_host", type=str)
     parser.add_argument("-w", "--http-username", metavar="http_user", dest="http_user", type=str)
     parser.add_argument("-z", "--http-password", metavar="http_password", dest="http_password", type=str)
-    parser.add_argument("-y", "--ssh-user", metavar="ssh_user", dest="ssh_user", type=str)
-    parser.add_argument("-j", "--ssh-password", metavar="ssh_password", dest="ssh_password", type=str)
-    parser.add_argument("-s", "--ssh-host", metavar="ssh_host", dest="ssh_host", type=str)
     parser.add_argument("-k", "--http-host", metavar="http_host", dest="http_host", type=str)
     parser.add_argument("-l", "--log-file", metavar="log_file", dest="log_file", type=str, default=None,
                         help="path to the log file to generate")
@@ -54,26 +51,16 @@ def main():
     if args.num_papers:
         papers_to_extract = sorted(papers_to_extract, reverse=True)[0:args.num_papers]
     cm = CorpusManager()
-    cm.load_from_wb_database(args.db_name, args.db_user, args.db_password, args.db_host, ssh_user=args.ssh_user,
-                             ssh_passwd=args.ssh_password, ssh_host=args.ssh_host, paper_ids=papers_to_extract,
-                             exclude_temp_pdf=True, exclude_no_main_text=True)
+    cm.load_from_wb_database(args.db_name, args.db_user, args.db_password, args.db_host, paper_ids=papers_to_extract,
+                             exclude_temp_pdf=True, exclude_no_main_text=True, main_file_only=True)
 
     with open(args.out_file, 'w') as out_file:
         for paper in cm.get_all_papers():
-            fulltext = paper.get_text_docs(include_supplemental=False, remove_sections=[
-                PaperSections.INTRODUCTION, PaperSections.RELATED_WORK, PaperSections.ACKNOWLEDGEMENTS,
-                PaperSections.REFERENCES], must_be_present=[PaperSections.RESULTS], split_sentences=False,
-                                           return_concatenated=True)
-            fulltext = fulltext.replace("Fig.", "Fig")
-            fulltext = fulltext.replace("et al.", "et al")
-            fulltext = fulltext.replace('.\n\n', '. ')
-            fulltext = fulltext.replace('\n\n', '. ')
-            fulltext = fulltext.replace('-\n', '')
-            fulltext = fulltext.replace('.\n', '. ')
-            fulltext = fulltext.replace('\n', ' ')
-            pap_sentences = sent_tokenize(fulltext)
-            pap_sentences = [paper.paper_id + "\t" + sent + '\n' for sent in pap_sentences if np.average([len(w) for w in sent.split(' ')]) > 2]
-            out_file.writelines(pap_sentences)
+            pap_sentences = paper.get_text_docs(include_supplemental=False, split_sentences=True,
+                                                return_concatenated=False)
+            for sentence in pap_sentences:
+                if len(sentence) > 10 and len(sentence.split(" ")) > 2:
+                    out_file.write(paper.paper_id + "\t" + sentence+ "\n")
 
 
 if __name__ == '__main__':

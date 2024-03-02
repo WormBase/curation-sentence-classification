@@ -4,7 +4,7 @@ import urllib.request
 
 
 def get_papers_from_cs_form(datatype, user, password, method,
-                            host="http://tazendra.textpressolab.com/~postgres/cgi-bin/curation_status.cgi"):
+                            host="https://caltech-curation.textpressolab.com/priv/cgi-bin/curation_status.cgi"):
     if datatype == "humdis":
         datatype = "humandisease"
     request = urllib.request.Request(host + "?action=listCurationStatisticsPapersPage&select_datatypesource=caltech&"
