@@ -6,10 +6,10 @@ from wbtools.lib.nlp.text_preprocessing import get_documents_from_text
 
 def read_sentences_from_file(filepath, min_sent_length=20):
     return [sentence for line in open(filepath) for sentence in get_documents_from_text(
-        text=line.strip(), split_sentences=True) if len(sentence) > min_sent_length]
+        sentences=[line.strip()], split_sentences=True) if len(sentence) > min_sent_length]
 
 def read_sentences_from_file_with_papid(filepath, min_sent_length=20):
-    return [(sent.split("\t")[0], s) for sent in open(filepath) if len(s:=sent.split("\t")[1]) > min_sent_length]
+    return [(sent.strip().split("\t")[0], s[1].strip()) for sent in open(filepath) if len(s:=sent.split("\t")) > 1 and len(s[1]) > min_sent_length]
 
 def clean_sentence(sentence):
     sentence = sentence.replace('/', ' / ')
