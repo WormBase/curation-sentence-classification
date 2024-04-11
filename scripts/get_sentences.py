@@ -2,10 +2,7 @@ import argparse
 import logging
 import os
 
-import numpy as np
-from wbtools.lib.nlp.common import PaperSections
 from wbtools.literature.corpus import CorpusManager
-from nltk import sent_tokenize
 
 from common import get_papers_from_cs_form
 

@@ -1,4 +1,5 @@
-git+https://github.com/WormBase/wbtools.git@grobid
+#git+https://github.com/WormBase/wbtools.git@grobid
+wbtools==3.0.4
 jupyter
 sentence_transformers
 scikit-learn
