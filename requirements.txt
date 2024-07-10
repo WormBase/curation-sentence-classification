@@ -8,3 +8,4 @@ nltk~=3.7
 numpy~=1.19.5
 umap-learn
 sent2vec-prebuilt
+xgboost
